@@ -33,6 +33,19 @@ The system follows a clean, layered architecture:
 All layers are designed to be independently testable and extensible.
 
 ---
+## Operational Constraints
+
+The system includes an **Operational Constraint Engine** that validates
+optimized flight plans against real-world airspace and ATC restrictions
+(e.g., LOAs, sector rules).
+
+Fuel-optimal recommendations that are **operationally illegal** are
+automatically rejected at the workflow layer, ensuring only executable
+plans are published via MCP.
+
+This mirrors real airline dispatch decision-making, where safety and
+regulatory compliance override fuel optimization.
+---
 
 ## AWS Strands
 Workflow logic is implemented using a **Strands-compatible abstraction** that
@@ -120,3 +133,11 @@ The architecture is designed to support future extensions, including:
 Comprehensive architectural documentation, design decisions, and runbooks are
 available under:
 
+## Scope & Limitations
+
+- **Vertical optimization only (altitude-based)**
+- No lateral routing optimization
+- Weather and aircraft performance are mocked
+- **Raw METAR/TAF parsing is explicitly out of scope**
+- Delay and re-dispatch recommendations are acknowledged but not implemented
+- AWS SDKs are intentionally excluded from core logic

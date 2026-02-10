@@ -1,0 +1,12 @@
+{
+  "altitude_constraints": [
+    {
+      "constraint_id": "DEL-BOM-LOA-001",
+      "sector": "DEL-BOM",
+      "min_altitude_ft": null,
+      "max_altitude_ft": 36000,
+      "reason_code": "ATC_LOA_RESTRICTION",
+      "description": "FL380 prohibited between DEL and BOM due to inter-sector ATC LOA"
+    }
+  ]
+}
