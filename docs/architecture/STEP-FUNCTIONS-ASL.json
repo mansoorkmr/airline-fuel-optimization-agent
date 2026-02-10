@@ -1,0 +1,21 @@
+{
+  "Comment": "Airline Fuel Optimization Workflow",
+  "StartAt": "OptimizeFlights",
+  "States": {
+    "OptimizeFlights": {
+      "Type": "Map",
+      "ItemsPath": "$.flights",
+      "Iterator": {
+        "StartAt": "RunOptimization",
+        "States": {
+          "RunOptimization": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:REGION:ACCOUNT:function:fuel-optimizer",
+            "End": true
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}

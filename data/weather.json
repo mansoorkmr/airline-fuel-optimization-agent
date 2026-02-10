@@ -1,0 +1,11 @@
+{
+  "ENROUTE": {
+    "wind_kt": -30
+  },
+  "DEL": {
+    "wind_kt": -10
+  },
+  "BOM": {
+    "wind_kt": 5
+  }
+}

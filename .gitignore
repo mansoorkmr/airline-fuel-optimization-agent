@@ -1,0 +1,29 @@
+# =========================
+# Python runtime artifacts
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# =========================
+# Logs (HPC / Scheduler)
+# =========================
+logs/
+*.log
+*.out
+*.err
+
+# =========================
+# Generated outputs
+# =========================
+output/
+output.json
+
+# =========================
+# OS / Editor noise
+# =========================
+.DS_Store
+*.swp
+*.swo

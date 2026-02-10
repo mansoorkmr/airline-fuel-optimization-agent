@@ -1,0 +1,3 @@
+flight_id,origin,destination,altitude_ft,aircraft,departure_time
+AI101,DEL,BOM,35000,A320,2026-02-07T10:30:00Z
+AI202,BOM,BLR,33000,A320,2026-02-07T12:15:00Z
