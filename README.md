@@ -1,13 +1,13 @@
-Airline Fuel Optimization Agent
+✈️ Airline Fuel Optimization Agent
 AWS Strands–Aligned | MCP-Integrated | Operationally Safe | Shadow-Tested
 
 Author: Mansoor Wani
+
 Email: mansoor.wani@iust.ac.in
 
 GitHub: https://github.com/mansoorkmr
 
-1. Executive Summary
-
+📄 Executive Summary
 This project implements an institutional-grade Proof-of-Concept Airline Fuel Optimization Agent.
 
 The system analyzes:
@@ -32,12 +32,10 @@ Fleet-level cost and annualized financial projections
 
 Shadow-mode backtesting analysis
 
-This architecture is aligned with AWS Strands-style orchestration and MCP event-driven integration.
+Note: This architecture is aligned with AWS Strands-style orchestration and MCP event-driven integration.
 
-2. Problem Statement
-
-Airline fuel represents the largest operational cost component.
-Small improvements in cruise altitude selection can generate significant fleet-wide savings.
+❓ Problem Statement
+Airline fuel represents the largest operational cost component. Small improvements in cruise altitude selection can generate significant fleet-wide savings.
 
 However, optimization must respect:
 
@@ -51,47 +49,35 @@ Legal airspace restrictions
 
 Dispatch governance
 
-The challenge is to build a deterministic, auditable, operationally safe optimization agent.
+The challenge: To build a deterministic, auditable, operationally safe optimization agent.
 
-3. System Architecture
+🏗️ System Architecture
+Full Diagram: docs/architecture/ARCHITECTURE-DIAGRAM.md
 
-See full diagram:
+High-level Flow
+Flight Data → Optimization Workflow (Strands-style orchestration) → Fuel Model + Constraints → MCP Recommendation → Shadow Analytics → Fleet Financial Summary
 
-docs/architecture/ARCHITECTURE-DIAGRAM.md
+Core Architectural Layers
+Domain Layer: Immutable flight models
 
-High-level flow:
+Ingestion Layer: CSV abstraction
 
-Flight Data
-→ Optimization Workflow (Strands-style orchestration)
-→ Fuel Model + Constraints
-→ MCP Recommendation
-→ Shadow Analytics
-→ Fleet Financial Summary
+Services Layer: Weather + aircraft
 
-Core architectural layers:
+Constraint Engine: ATC legality
 
-Domain Layer (immutable flight models)
+Optimization Engine: Deterministic
 
-Ingestion Layer (CSV abstraction)
+Workflow Orchestrator: Strands abstraction
 
-Services Layer (weather + aircraft)
+MCP Publisher: Structured event emission
 
-Constraint Engine (ATC legality)
+Shadow Analyzer: Backtesting & fleet projection
 
-Optimization Engine (deterministic)
+No business logic is embedded in AWS SDK calls. Core logic is platform-agnostic.
 
-Workflow Orchestrator (Strands abstraction)
-
-MCP Publisher (structured event emission)
-
-Shadow Analyzer (backtesting & fleet projection)
-
-No business logic is embedded in AWS SDK calls.
-Core logic is platform-agnostic.
-
-4. Core Capabilities
+🛠️ Core Capabilities
 4.1 Data Ingestion
-
 Flight plan ingestion from CSV
 
 Weather abstraction layer
@@ -103,66 +89,27 @@ Config-driven file paths
 Future extension: Real METAR/TAF API ingestion (NOAA/AVWX)
 
 4.2 Deterministic Fuel Optimization
+The optimizer uses config-driven candidate altitudes, applies wind penalty factors, computes fuel burn per altitude, selects the minimum fuel option, and enforces operational legality.
 
-The optimizer:
+Optimization Characteristics:
 
-Uses config-driven candidate altitudes
+Deterministic & Auditable
 
-Applies wind penalty factor
-
-Computes fuel burn per altitude
-
-Selects minimum fuel option
-
-Enforces operational legality
-
-Optimization is:
-
-Deterministic
-
-Auditable
-
-Stateless
-
-Reproducible
+Stateless & Reproducible
 
 4.3 Operational Constraint Engine
+Implements legality validation including restricted airspace ingestion and ATC LOA altitude prohibitions via segment-based enforcement.
 
-Implements legality validation:
+Logic: If fuel-optimal altitude violates legality, the optimization is rejected, the rationale is recorded, and the MCP reflects the constraint rejection.
 
-Restricted airspace ingestion
-
-ATC LOA altitude prohibitions
-
-Segment-based enforcement
-
-If fuel-optimal altitude violates legality:
-
-Optimization is rejected
-
-Rationale is recorded
-
-MCP reflects constraint rejection
-
-This ensures operational compliance.
+Outcome: Ensures operational compliance.
 
 4.4 Shadow Mode (Backtesting Engine)
-
-Shadow mode enables production-safe validation:
-
-Replays historical flight plans
-
-Computes “Recommended vs Actual”
-
-Measures fuel delta
-
-Aggregates fleet impact
+Shadow mode enables production-safe validation by replaying historical flight plans to compute “Recommended vs Actual” metrics.
 
 Outputs:
 
-Total fuel saved
-
-Percentage savings
+Total fuel saved (kg & %)
 
 Projected annual fuel savings
 
@@ -170,149 +117,68 @@ USD cost savings
 
 Fleet-level impact summary
 
-Shadow mode allows validation before operational deployment.
-
 4.5 MCP Integration
-
 Outputs MCP-compliant event structure:
 
-{
-"event_type": "AIRLINE_FUEL_OPTIMIZATION_RECOMMENDATION",
-"impact": {
-"fuel_saved_kg": 320,
-"fuel_saved_percent": 4.17
+JSON
+{ 
+  "event_type": "AIRLINE_FUEL_OPTIMIZATION_RECOMMENDATION", 
+  "impact": { 
+    "fuel_saved_kg": 320, 
+    "fuel_saved_percent": 4.17 
+  } 
 }
-}
+Designed for: Mission Control ingestion, EventBridge topic publishing, and Queue-based operational workflows.
 
-Designed for:
+Status: Currently broadcast-only. Bi-directional ACK/NACK loop planned.
 
-Mission Control ingestion
+☁️ AWS Strands Alignment
+Although implemented locally, the architecture maps directly to:
 
-EventBridge topic publishing
+AWS Lambda: Stateless compute
 
-Queue-based operational workflows
+AWS Step Functions: State orchestration
 
-Currently broadcast-only.
-Bi-directional ACK/NACK loop planned.
+EventBridge: MCP emission
 
-5. AWS Strands Alignment
+S3: Audit storage
 
-Although implemented locally, architecture maps directly to:
+CloudWatch: Observability
 
-AWS Lambda (stateless compute)
+Workflow abstraction: app/workflow/strands_state_machine.py. No AWS SDK hardcoded inside business logic.
 
-AWS Step Functions (state orchestration)
+⚙️ Configuration & Financials
+Configuration Abstraction
+All runtime behavior is externalized to config.ini. No hardcoded business constants.
 
-EventBridge (MCP emission)
+Sections: optimization, weather, fleet, execution, logging, paths.
 
-S3 (audit storage)
+Fleet Financial Modeling
+Moves the system from technical demo to executive-relevant solution.
 
-CloudWatch (observability)
+Metrics: Fuel saved per flight, Cost per kg, Flights per day, Operating days per year.
 
-Workflow abstraction in:
+Example Calculation: > 320 kg per flight × 100 flights/day × 365 days × 0.85 USD/kg → Significant annual cost reduction.
 
-app/workflow/strands_state_machine.py
-
-No AWS SDK hardcoded inside business logic.
-
-6. Configuration Abstraction
-
-All runtime behavior externalized to:
-
-config.ini
-
-Sections:
-
-optimization
-
-weather
-
-fleet
-
-execution
-
-logging
-
-paths
-
-No hardcoded business constants.
-
-7. Fleet Financial Modeling
-
-Fleet metrics include:
-
-Fuel saved per flight
-
-Cost per kg
-
-Flights per day
-
-Operating days per year
-
-Annualized savings
-
-Example:
-
-320 kg per flight
-× 100 flights/day
-× 365 days
-× 0.85 USD/kg
-
-→ Significant annual cost reduction
-
-This moves the system from technical demo to executive-relevant solution.
-
-8. Testing & Engineering Quality
-
+🧪 Quality & Execution
+Testing & Engineering Quality
 Unit tests for optimizer logic
 
-Deterministic behavior
+Deterministic behavior & constraint validation tested
 
-Config-driven candidate altitudes
+CI-ready structure with layered architecture and no hidden state
 
-Constraint validation tested
+Test example: tests/test_optimizer.py | Run: pytest
 
-CI-ready structure
+Execution Modes
+Configured via config.ini. Modes: local, shadow.
 
-Layered architecture
+Run command: python -m app.main
 
-No hidden state
+Outputs: Flight-level MCP JSON, Audit JSON, Fleet summary JSON.
 
-Test example:
-
-tests/test_optimizer.py
-
-Run:
-
-pytest
-
-9. Execution Modes
-
-Configured via config.ini
-
-Modes:
-
-local
-shadow
-
-Shadow mode enables fleet-level projection.
-
-Run:
-
-python -m app.main
-
-Outputs:
-
-Flight-level MCP JSON
-
-Audit JSON
-
-Fleet summary JSON
-
-10. Production Readiness Considerations
-
-To move to production:
-
+🚀 Future Roadmap
+Production Readiness Considerations
 Replace mock weather with live METAR/TAF ingestion
 
 Introduce MCP ACK/NACK loop
@@ -321,26 +187,9 @@ Add real-time dispatcher UI
 
 Implement cost index modeling
 
-Add CI/CD deployment
+Add CI/CD deployment & Containerization (Docker)
 
-Add containerization (Docker)
-
-11. Limitations
-
-Weather currently simulated
-
-No lateral route optimization
-
-No real-time ATC integration
-
-No ML predictive burn model
-
-Documented intentionally for clarity.
-
-12. Extensibility Roadmap
-
-Future enhancements:
-
+Extensibility Roadmap
 Real-time NOAA weather API
 
 Machine-learning fuel modeling
@@ -349,63 +198,23 @@ Dynamic re-dispatch engine
 
 Turbulence-aware altitude modeling
 
-Real-time dispatch dashboard
-
 Multi-aircraft fleet optimization
 
-13. Repository Structure
-
+📁 Repository Structure
+Plaintext
 app/
-
-core/
-
-domain/
-
-ingestion/
-
-services/
-
-constraints/
-
-optimization/
-
-workflow/
-
-mcp/
-
-shadow/
-
-reporting/
-
-docs/
-
-architecture/
-
-decisions/
-
-runbooks/
-
+├── core/ (domain, ingestion, services)
+├── constraints/
+├── optimization/
+├── workflow/
+├── mcp/
+├── shadow/
+└── reporting/
+docs/ (architecture, decisions, runbooks)
 tests/
-
 config.ini
-
-14. Conclusion
-
-This project demonstrates:
-
-Engineering discipline
-
-Operational safety awareness
-
-Financial impact modeling
-
-AWS-aligned architecture
-
-Deterministic optimization logic
-
-Enterprise-ready modular design
-
-It exceeds baseline POC requirements by introducing:
+🏁 Conclusion
+This project demonstrates engineering discipline, operational safety awareness, and financial impact modeling. It exceeds baseline POC requirements by introducing:
 
 Constraint enforcement
 
@@ -413,6 +222,4 @@ Shadow-mode validation
 
 Fleet-level financial analytics
 
-Config abstraction
-
-CI-ready structure
+Deterministic optimization logic
